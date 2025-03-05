@@ -52,16 +52,27 @@ Expected output should confirm ROS 2 Jazzy is installed.
 ## Step 6: Setup TCEBot Packages
 Clone and build the required TCEBot packages:
 
-![Alt text](https://raw.githubusercontent.com/dhanushshettigar/tcebot_bringup/refs/heads/main/media/Workspace.png)
-![Alt text](https://raw.githubusercontent.com/dhanushshettigar/tcebot_bringup/refs/heads/main/media/Clone-Dep-Packages.png)
-
-
+```bash
+mkdir -p ~/Documents/ros2_ws/src && cd ~/Documents/ros2_ws/src
+git clone https://github.com/dhanushshettigar/tcebot_bringup.git
+git clone https://github.com/dhanushshettigar/tcebot_description.git
+git clone https://github.com/dhanushshettigar/tcebot_control.git
+git clone -b ros2 https://github.com/Slamtec/rplidar_ros.git
+git clone https://github.com/dhanushshettigar/ros2_mpu6050_driver.git
+cd ..
+colcon build
+source install/setup.bash
+sudo chmod 666 /dev/ttyUSB0
+sudo chmod 666 /dev/ttyACM0
+```
 
 ## Troubleshooting
 - If SSH fails, connect a monitor and keyboard to troubleshoot.
 - Ensure all dependencies are installed:
   ```bash
-  sudo apt-get install ros-jazzy-image-transport-plugins
+  sudo apt install ros-jazzy-image-transport-plugins
+  sudo apt install ros-jazzy-robot-localization
   ```
+- Check - https://github.com/dhanushshettigar/ros2_mpu6050_driver.git for MPU6050 Setup
 ---
 Your TCEBot should now be up and running on ROS 2 Jazzy!

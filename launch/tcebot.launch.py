@@ -1,5 +1,4 @@
 import os
-
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, TimerAction
@@ -12,7 +11,7 @@ from launch.substitutions import LaunchConfiguration
 pkg_tcebot_bringup = get_package_share_directory('tcebot_bringup')
 pkg_tcebot_control = get_package_share_directory('tcebot_control')
 pkg_tcebot_description = get_package_share_directory('tcebot_description')
-pkg_mpu6050driver = get_package_share_directory('mpu6050driver')
+pkg_tcebot_imu = get_package_share_directory('tcebot_imu')
 
 def generate_launch_description():
     # Declare launch arguments
@@ -58,11 +57,11 @@ def generate_launch_description():
         condition=IfCondition(camera),
     )
 
-    # Start MPU6050 driver first
-    include_mpu6050_driver = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(pkg_mpu6050driver, 'launch', 'mpu6050driver_launch.py'),
-        )
+    include_bno055_driver = Node(
+        package='tcebot_imu',
+        executable='imu_publisher',
+        name='imu_publisher',
+        output='screen'
     )
 
     # Delay robot control and sensors to ensure IMU is publishing
@@ -70,27 +69,12 @@ def generate_launch_description():
     rplidar_timer = TimerAction(period=3.0, actions=[include_rplidar])
     camera_timer = TimerAction(period=3.0, actions=[include_camera])
 
-    # Include robot_localization (EKF) to generate /odom
-    ekf_config_path = os.path.join(pkg_tcebot_bringup, 'config', 'ekf.yaml')
-
-    ekf_localization = Node(
-        package='robot_localization',
-        executable='ekf_node',
-        name='ekf_filter_node',
-        output='screen',
-        parameters=[ekf_config_path],
-        remappings=[('/odometry/filtered', '/odom')]
-    )
-
-    ekf_timer = TimerAction(period=7.0, actions=[ekf_localization])  # Start EKF after IMU is running
-
     return LaunchDescription([
         include_tcebot_description,
-        include_mpu6050_driver,  # Start MPU6050 first
+        include_bno055_driver,  # Start BNO055 IMU first
         tcebot_control_timer,
         camera_arg,
         camera_timer,
         rplidar_arg,
         rplidar_timer,
-        ekf_timer,  # Start EKF after IMU is publishing
     ])

@@ -57,13 +57,17 @@ mkdir -p ~/Documents/ros2_ws/src && cd ~/Documents/ros2_ws/src
 git clone https://github.com/dhanushshettigar/tcebot_bringup.git
 git clone https://github.com/dhanushshettigar/tcebot_description.git
 git clone https://github.com/dhanushshettigar/tcebot_control.git
+git clone https://github.com/dhanushshettigar/tcebot_imu.git
 git clone -b ros2 https://github.com/Slamtec/rplidar_ros.git
-git clone https://github.com/dhanushshettigar/ros2_mpu6050_driver.git
 cd ..
 colcon build
 source install/setup.bash
+
 sudo chmod 666 /dev/ttyUSB0
-sudo chmod 666 /dev/ttyACM0
+
+sudo usermod -aG gpio tcebot
+sudo chown root:gpio /dev/gpiomem
+sudo chmod g+rw /dev/gpiomem
 ```
 
 ## Troubleshooting
